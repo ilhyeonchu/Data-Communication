@@ -46,19 +46,27 @@ def file2morse(filename):
 # 모스를 오디오로
 def morse2audio(morse):
     audio = []
-    
-    with open(morse, 'r') as file:
-        morse_data = file.read().strip()
-    
-    for m in morse_data:
+    blank = 0
+    # with open(morse, 'r') as file:
+    #     morse_data = file.read().strip()
+    print(f"Received morse: {morse}")
+    for m in morse:
         if m == '.':
+            blank = 0
             for i in range(int(t*fs*1)):
                 audio.append(int(INTMAX*math.sin(2*math.pi*f*(i/fs))))
         elif m == '-':
+            blank = 0
             for i in range(int(t*fs*3)):
                 audio.append(int(INTMAX*math.sin(2*math.pi*f*(i/fs))))
         elif m == ' ':
-            for i in range(int(t*fs*))
+            blank +=1
+            if blank >= 2:
+                for i in range(int(t*fs*3)):
+                    audio.append(int(0))
+            else:
+                for i in range(int(t*fs*2)):
+                    audio.append(int(0))
         for i in range(int(t*fs*1)):
             audio.append(int(0))
     return audio
@@ -95,10 +103,17 @@ def text2morse(text):
 #텍스트 입력 모스 반환
 morse_result = text2morse('CNU CSE 201802168 ILHYEONCHU')
 
+
+morse_text = 'hw03_01.txt'
 #위에서 받은 모스를 텍스트로 저장
-with open('hw03_01.txt', 'w') as f:
-    f.write(morse_result)
-morsetxt = 'hw03_01.txt'
-audio_01 = morse2audio(morsetxt)
+with open(morse_text, 'w') as file:
+    file.write(morse_result)
+
+with open(morse_text, 'r') as file:
+    morse_data = file.read().strip()
+
+print(f"Read morse: {morse_data}")
+
+audio_01 = morse2audio(morse_data)
 wav_01 = '201802168_ilhyeonchu.wav'
 audio2file(audio_01, wav_01)
