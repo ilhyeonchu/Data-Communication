@@ -3,6 +3,7 @@ import statistics
 import struct
 import time
 import wave
+import os
 
 import pyaudio
 
@@ -55,8 +56,6 @@ def file2morse(filename):
 def morse2audio(morse):
     audio = []
     blank = 0
-    # with open(morse, 'r') as file:
-    #     morse_data = file.read().strip()
     for m in morse:
         if m == '.':
             blank = 0
@@ -84,7 +83,7 @@ def audio2file(audio, filename):
     with wave.open(filename, 'wb') as w:
         w.setnchannels(1)
         w.setsampwidth(4)
-        w.setframerate(48000)
+        w.setframerate(fs)
         for a in audio:
             w.writeframes(struct.pack('<l', a))
 
@@ -126,15 +125,71 @@ def morse2text(morse):
             word = ''
         else:  # 모스 코드를 word에 추가시켜 나중에 문자단위로 변환
             word += code
-    
+
     return text
 
 
 def send_data():
-
+    text = input('Enter text: ').strip()
+    morse = text2morse(text)
+    print("Morse code: ", morse)
+    audio = morse2audio(morse)
+    audio2file(audio, 'send.wav')
     pass
 
 def receive_data():
+    THRESHOLD = 1000
+    UNSEEN_LIMIT = 10
+    UNIT = int(t * fs)
+
+    p = pyaudio.PyAudio()
+    stream = p.open(format=pyaudio.paInt32, channels=1, rate=fs, input=True)
+    print("신호 대기 중")
+    audio = []
+    unseen = 0
+    recording_start = False
+    morse = ''
+    try:
+        while True:
+            data = stream.read(UNIT)
+            values = struct.unpack('<' + 'h' * UNIT, data)
+            stdev = statistics.stdev(values)
+
+            if stdev > THRESHOLD:
+                if not recording_start:
+                    print("녹음 시작")
+                    recording_start = True
+                audio.extend(values)
+                morse += '.'
+                unseen = 0
+            elif recording_start:
+                unseen += 1
+                morse += ' '
+                if unseen > UNSEEN_LIMIT:
+                    recording_start = False
+                    print("녹음 종료")
+                    break
+            if recording_start:
+                print(f"\r녹음 중 Morse: {morse}", end='')
+
+    finally:
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
+
+    filename = 'receive.wav'
+    with wave.open(filename, 'wb') as w:
+        w.setnchannels(1)
+        w.setsampwidth(4)
+        w.setframerate(fs)
+        for a in audio:
+            w.writeframes(struct.pack('<l', a))
+
+    print("저장 완료")
+    morse = file2morse(filename)
+    print("수신한 코드: ", morse)
+    text = morse2text(morse)
+    print("수신한 문자열: ", text)
     pass
 
 def main():
