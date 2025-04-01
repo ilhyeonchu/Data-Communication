@@ -152,7 +152,7 @@ def receive_data():
     try:
         while True:
             data = stream.read(UNIT)
-            values = struct.unpack('<' + 'h' * UNIT, data)
+            values = struct.unpack('<' + 'l' * UNIT, data)
             stdev = statistics.stdev(values)
 
             if stdev > THRESHOLD:
