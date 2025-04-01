@@ -138,7 +138,7 @@ def send_data():
     pass
 
 def receive_data():
-    THRESHOLD = 1000
+    THRESHOLD = 10000
     UNSEEN_LIMIT = 10
     UNIT = int(t * fs)
 
