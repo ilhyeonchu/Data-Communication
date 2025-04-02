@@ -7,7 +7,7 @@ import os
 
 import pyaudio
 
-INTMAX = 2**(32-1)-1
+INTMAX = 2**(16-1)-1
 
 english = {'A':'.-'   , 'B':'-...' , 'C':'-.-.' ,
            'D':'-..'  , 'E':'.'    , 'F':'..-.' ,
@@ -37,12 +37,12 @@ def file2morse(filename):
         frames = w.getnframes()
         for i in range(frames):
             frame = w.readframes(1)
-            audio.append(struct.unpack('<i', frame)[0])
+            audio.append(struct.unpack('<h', frame)[0])
         morse = ''
         unit = int(t * fs)
         for i in range(1, math.ceil(len(audio) / unit) + 1):
             stdev = statistics.stdev(audio[(i - 1) * unit:i * unit])
-            if stdev > 10000:
+            if stdev > 1000:
                 morse = morse + '.'
             else:
                 morse = morse + ' '
@@ -82,10 +82,10 @@ def morse2audio(morse):
 def audio2file(audio, filename):
     with wave.open(filename, 'wb') as w:
         w.setnchannels(1)
-        w.setsampwidth(4)
+        w.setsampwidth(2)
         w.setframerate(fs)
         for a in audio:
-            w.writeframes(struct.pack('<l', a))
+            w.writeframes(struct.pack('<h', a))
 
 
 # 텍스트를 모스로
@@ -138,12 +138,12 @@ def send_data():
     pass
 
 def receive_data():
-    THRESHOLD = 10000
+    THRESHOLD = 1000
     UNSEEN_LIMIT = 10
     UNIT = int(t * fs)
 
     p = pyaudio.PyAudio()
-    stream = p.open(format=pyaudio.paInt32, channels=1, rate=fs, input=True)
+    stream = p.open(format=pyaudio.paInt16, channels=1, rate=fs, input=True)
     print("신호 대기 중")
     audio = []
     unseen = 0
@@ -152,7 +152,7 @@ def receive_data():
     try:
         while True:
             data = stream.read(UNIT)
-            values = struct.unpack('<' + 'l' * UNIT, data)
+            values = struct.unpack('<' + 'h' * UNIT, data)
             stdev = statistics.stdev(values)
 
             if stdev > THRESHOLD:
@@ -180,10 +180,10 @@ def receive_data():
     filename = 'receive.wav'
     with wave.open(filename, 'wb') as w:
         w.setnchannels(1)
-        w.setsampwidth(4)
+        w.setsampwidth(2)
         w.setframerate(fs)
         for a in audio:
-            w.writeframes(struct.pack('<l', a))
+            w.writeframes(struct.pack('<h', a))
 
     print("저장 완료")
     morse = file2morse(filename)
