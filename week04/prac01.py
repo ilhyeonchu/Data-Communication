@@ -11,12 +11,12 @@ def main():
 
     p = pyaudio.PyAudio()
 
-    stream = p.open(format=pyaudio.paInt32, channels=1, rate=fs, input=True)
+    stream = p.open(format=pyaudio.paInt16, channels=1, rate=fs, input=True)
     audio = []
 
     chunk_size = 1024
     for _ in range(0, math.ceil(fs / chunk_size) * 10):
-        data = struct.unpack('<' + ('l'*chunk_size), stream.read(chunk_size))
+        data = struct.unpack('<' + ('h'*chunk_size), stream.read(chunk_size))
         audio.extend(data)
         print(statistics.stdev(data))
 

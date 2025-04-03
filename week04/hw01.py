@@ -4,6 +4,7 @@ import struct
 import time
 import wave
 import os
+import re
 
 import pyaudio
 
@@ -22,12 +23,13 @@ number = { '1':'.----', '2':'..---', '3':'...--',
            '4':'....-', '5':'.....', '6':'-....',
            '7':'--...', '8':'---..', '9':'----.',
            '0':'-----'}
-char_to_morse = {**english, **number}
-morse_to_char = {v: k for k, v in char_to_morse.items()}
+morse2_to_char = {**english, **number}
+morse_to_char = {v: k for k, v in morse2_to_char.items()}
 
 t = 0.1
 fs = 48000
 f = 523.251 #C5
+
 
 
 def file2morse(filename):
@@ -42,15 +44,15 @@ def file2morse(filename):
         unit = int(t * fs)
         for i in range(1, math.ceil(len(audio) / unit) + 1):
             stdev = statistics.stdev(audio[(i - 1) * unit:i * unit])
-            if stdev > 1000:
+            if stdev > 400:
                 morse = morse + '.'
             else:
                 morse = morse + ' '
         morse = morse.replace('...', '-')
         morse = morse.replace('       ', ' / ')  # 단어 바뀜
         morse = morse.replace('   ', ' + ')  # 문자 바뀜
-    return morse
-
+        morse = morse.replace('. ', '.')
+    return morse.strip()
 
 # 모스를 오디오로
 def morse2audio(morse):
@@ -112,19 +114,23 @@ def text2morse(text):
 def morse2text(morse):
     text = ''
     word = ''
-    
-    for code in morse.split(' '):  # 모스코드 단어 단위로 나누기
-        if code == '+':  # 문자 바뀜 word에 모여있는 모스 코드들을 문자로 변환 후 text에 추가
+
+    tokens = morse.strip().split()
+    for token in tokens:  # 모스코드 단어 단위로 나누기
+        if token == '+':  # 문자 바뀜 word에 모여있는 모스 코드들을 문자로 변환 후 text에 추가
             if word in morse_to_char:
                 text += morse_to_char[word]
             word = ''
-        elif code == '/':  # 단어 바뀜 word에 모여있는 모스 코드들을 문자로 변환 후 text에 추가
+        elif token == '/':  # 단어 바뀜 word에 모여있는 모스 코드들을 문자로 변환 후 text에 추가
             if word in morse_to_char:
                 text += morse_to_char[word]
             text += ' '
             word = ''
         else:  # 모스 코드를 word에 추가시켜 나중에 문자단위로 변환
-            word += code
+            word += token
+
+    if word in morse_to_char:
+        text += morse_to_char[word]
 
     return text
 
@@ -135,10 +141,15 @@ def send_data():
     print("Morse code: ", morse)
     audio = morse2audio(morse)
     audio2file(audio, 'send.wav')
+
+    sample_morse = file2morse('send.wav')
+    print("Sampled Morse code: ", sample_morse)
+    sample_text = morse2text(sample_morse)
+    print("Sampled text: ", sample_text)
     pass
 
 def receive_data():
-    THRESHOLD = 1000
+    THRESHOLD = 600
     UNSEEN_LIMIT = 10
     UNIT = int(t * fs)
 
@@ -164,7 +175,8 @@ def receive_data():
                 unseen = 0
             elif recording_start:
                 unseen += 1
-                morse += ' '
+                if unseen >= 1:
+                    morse += ' '
                 if unseen > UNSEEN_LIMIT:
                     recording_start = False
                     print("녹음 종료")
@@ -192,18 +204,30 @@ def receive_data():
     print("수신한 문자열: ", text)
     pass
 
+def receive_data_check():
+    filename = 'receive.wav'
+    receive_morse = file2morse(filename)
+    receive_text = morse2text(receive_morse)
+    print("수신한 텍스트: ", receive_text)
+
 def main():
+    morse = file2morse('send.wav')
+    print("Decoded Morse:", morse)
+    print("Text:", morse2text(morse))
     while True:
         print('Morse Code over Sound with Noise')
         print('2025 Spring Data Communication at CNU')
         print('[1] Send morse code over sound (play)')
         print('[2] Receive morse code over sound (record)')
+        print('[3] Receive morse code check')
         print('[q] Exit')
         select = input('Select menu: ').strip().upper()
         if select == '1':
             send_data()
         elif select == '2':
             receive_data()
+        elif select == '3':
+            receive_data_check()
         elif select == 'Q':
             print('Terminating...')
             break;
