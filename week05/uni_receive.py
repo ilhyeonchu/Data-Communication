@@ -8,7 +8,7 @@ import pyaudio
 fs = 48000
 chunk_size = 1024
 
-MORSE_THRESHOLD = 800  # 소리로 인식할 최소 임계값
+MORSE_THRESHOLD = 900  # 소리로 인식할 최소 임계값
 UNSEEN_THRESHOLD = 5   # 초 단위, 연속된 무음 기준
 UNIT = 0.1             # 기본 시간 단위
 
@@ -29,21 +29,28 @@ code = {'0':'..-',
         'E':'.--.',
         'F':'...-'}
 
-def morse2text(morse):
-    text = ''
+def morse2hex(morse):
+    hex = ''
     words = morse.split(' '*7)
     for word in words:
         letters = word.split(' '*3)
         for letter in letters:
             letter = letter.replace(' ', '')
-            if letter in english.values():
-                text += list(english.keys())[list(english.values()).index(letter)]
-            elif letter in number.values():
-                text += list(number.keys())[list(number.values()).index(letter)]
+            if letter in code.values():
+                hex += list(code.keys())[list(code.values()).index(letter)]
             else:
-                text += letter
-        text += ' '
-    return text.strip()
+                hex += letter
+        hex += ' '
+    return hex.strip()
+
+def hex2text(hex):
+    text = ''
+    byte_hex = bytes.fromhex(hex)
+    byte_string = byte_hex.hex().upper()
+    print(f'byte_string: {byte_string}')
+    
+    output = byte_hex.decode('utf-8')
+    print(f'User output: {output}')
 
 def receive():
     p = pyaudio.PyAudio()
@@ -115,7 +122,7 @@ def receive():
         stream.stop_stream()
         stream.close()
         p.terminate()
-        print("Received Data:", morse2text(morse))
+        hex2text(morse2hex(morse))
 
 if __name__ == '__main__':
     receive()

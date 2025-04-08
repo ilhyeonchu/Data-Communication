@@ -28,7 +28,6 @@ code = {'0':'..-',
 
            
 def text2morse(text):
-    text = text.upper()
     morse = ''
     
     byte_hex = text.encode('utf-8')
@@ -92,12 +91,15 @@ def audio2file(audio, filename):
 
 
 def send():
-    while True:
-        print('Input the text (Unicode): ')
-        text = input('User input: ').strip()
+    
+    print('Input the text (Unicode): ')
+    text = input('User input: ').strip()
+    
 
 
     audio = morse2audio(text2morse(text))
+    
+    audio2file(audio, 'send.wav')
     
     p = pyaudio.PyAudio()
 
