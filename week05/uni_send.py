@@ -37,7 +37,7 @@ def text2morse(text):
     for t in byte_string:
         if t == ' ':
             morse += '/'
-        elif t in code.keys():  # 만약 문제생기면 여기일수도?
+        elif t in code.keys():
             morse += code[t]
         morse += ' '
     print(morse)
