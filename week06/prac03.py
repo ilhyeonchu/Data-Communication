@@ -1,0 +1,3 @@
+FREQ_START = 512
+FREQ_STEP = 128
+HEX_LIST = ['0' , 
