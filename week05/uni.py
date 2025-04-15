@@ -29,7 +29,7 @@ def main():
             receive_data()
         elif select == 'Q':
             print('Terminating...')
-            break;
+            break
 
 
 if __name__ == '__main__':

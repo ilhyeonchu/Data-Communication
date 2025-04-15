@@ -8,7 +8,7 @@ import pyaudio
 fs = 48000
 chunk_size = 1024
 
-MORSE_THRESHOLD = 700  # 소리로 인식할 최소 임계값
+MORSE_THRESHOLD = 800  # 소리로 인식할 최소 임계값
 UNSEEN_THRESHOLD = 5   # 초 단위, 연속된 무음 기준
 UNIT = 0.1             # 기본 시간 단위
 

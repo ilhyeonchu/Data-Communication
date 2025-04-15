@@ -1,5 +1,3 @@
-from re import T
-from sys import pycache_prefix
 import pyaudio
 import math
 import struct

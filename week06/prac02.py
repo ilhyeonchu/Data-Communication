@@ -1,9 +1,6 @@
 import math
-import re
-
 import scipy.fftpack
 import numpy as np
-from week05.uni import INTMAX 
 
 INTMAX = 2**(32-1)-1
 channels = 1
