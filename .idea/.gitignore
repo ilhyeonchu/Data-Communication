@@ -18,3 +18,5 @@
 /vcs.xml
 .venv/
 send.wav
+__pycache__/
+*.py[cod]
