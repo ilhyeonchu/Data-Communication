@@ -18,15 +18,13 @@ def receive():
                     frames_per_buffer=chunk_size)
     print("[START] Listening...")
 
-    start_count = 0
-    end_count = 0
     hex_list = []
     state = "STAR"
-    current_symbol = None
-    symbol_duration = 0
-    unit_threshold = 2
+    start_duration = 0
+    end_duration = 0
     unit_samples = int(sample_rate * unit)
     buffered_audio = []
+    tuning = True
 
     while True:
         data = stream.read(chunk_size, exception_on_overflow=False)
@@ -44,36 +42,38 @@ def receive():
         freq = round(dominant_freq, 1)
         symbol = None
         matched_freq = None
-        tolerance = 40
+        tolerance = 15
         for target_freq, symb in reverse_rules.items():
             if abs(freq - target_freq) <= tolerance:
                 symbol = symb
                 matched_freq = target_freq
                 break
 
-        if symbol == current_symbol:
-           symbol_duration += 1
-
+        if symbol == 'START':
+           start_duration += 1
         else:
-            if current_symbol == 'START' and state == 'STAR' and symbol_duration >= unit_threshold:
-                print("[DATA] Receiving...")
-                state = 'DAT'
+            start_duration = 0
 
-            elif current_symbol == 'END' and state == 'DAT' and symbol_duration >= unit_threshold:
-                print("[END] Detected. Ending.")
+        if start_duration >= 2:
+            state = 'DAT'
+            print("[DATA] Receiving...")
+
+        if state == 'DAT':
+            if symbol == 'END':
+                end_duration += 1
+            else:
+                end_duration = 0
+            if end_duration >= 2:
+                print("[END] Receiving complete.")
                 break
-
-            elif current_symbol in rules and state == 'DAT' and symbol_duration >= unit_threshold:
-                hex_list.append(current_symbol)
-                print(f"[DATA] {current_symbol} with {matched_freq if matched_freq is not None else freq}")
+            if symbol in rules and symbol != 'START' and symbol != 'END':
+                hex_list.append(symbol)
                 print("Current data:", ''.join(hex_list))
 
-            current_symbol = symbol
-            symbol_duration = 1 
 
         if state == 'STAR':
             print(f"[START] {symbol} with {matched_freq if matched_freq is not None else freq}")
-        elif state == 'DAT' and symbol is not None:
+        elif state == 'DAT':
             print(f"[DATA] {symbol} with {matched_freq if matched_freq is not None else freq}")
 
     stream.stop_stream()
@@ -82,6 +82,8 @@ def receive():
 
     hex_string = ''.join(hex_list)
     print("HEX:", hex_string)
+    if len(hex_string) % 2 != 0:
+        hex_string = hex_string[:-1]
     try:
         decoded = bytes.fromhex(hex_string).decode('utf-8')
         print("Decoded text:", decoded)
