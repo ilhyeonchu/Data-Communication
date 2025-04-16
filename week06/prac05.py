@@ -5,7 +5,7 @@ import scipy.fftpack
 import numpy as np
 
 from prac03 import rules
-from week06.prac04 import sample_rate
+from prac04 import sample_rate
 
 unit = 0.1
 samplerate = 48000
@@ -29,7 +29,7 @@ with wave.open(filename, 'rb') as w:
             top = freq[np.argmax(abs(fourier))]
 
             data = ''
-            for k, v in rules.tiems():
+            for k, v in rules.items():
                 if v-padding <= top and top <= v+padding:
                     data = k
 
