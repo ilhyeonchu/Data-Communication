@@ -6,6 +6,9 @@ import wave
 
 import pyaudio
 
+from uni_receive import receive
+from uni_send import send 
+
 INTMAX = 2**(32-1)-1
 
 def send_data():
