@@ -38,8 +38,8 @@ def receive():
 
         combined = np.array(buffered_audio[:unit_samples])
         buffered_audio = buffered_audio[unit_samples:]
-        spectrum = np.abs(np.fft.rfft(audio))
-        freqs = np.fft.rfftfreq(len(audio), d=1/sample_rate)
+        spectrum = np.abs(np.fft.rfft(combined))
+        freqs = np.fft.rfftfreq(len(combined), d=1/sample_rate)
         dominant_freq = freqs[np.argmax(spectrum)]
         freq = round(dominant_freq, 1)
         symbol = None
