@@ -16,12 +16,12 @@ string_hex = text.encode('utf-8').hex().upper()
 
 audio = []
 for i in range(int(unit*sample_rate*2)):
-    audio.append(int(INTMAX*math.sin(2(math.pi*rules['START']*i/sample_rate))))
+    audio.append(int(INTMAX*math.sin(2*math.pi*rules['START']*i/sample_rate)))
 for s in string_hex:
     for i in range(int(unit*sample_rate*1)):
-        audio.append(int(INTMAX*math.sin(2(math.pi*rules[s]*i/sample_rate))))
+        audio.append(int(INTMAX*math.sin(2*math.pi*rules[s]*i/sample_rate)))
 for i in range(int(unit*sample_rate*2)):
-    audio.append(int(INTMAX*math.sin(2(math.pi*rules['END']*i/sample_rate))))
+    audio.append(int(INTMAX*math.sin(2*math.pi*rules['END']*i/sample_rate)))
 
 p = pyaudio.PyAudio()
 
