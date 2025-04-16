@@ -21,7 +21,7 @@ def receive():
     start_count = 0
     end_count = 0
     hex_list = []
-    state = "WAIT_START"
+    state = "STAR"
 
     while True:
         data = stream.read(chunk_size, exception_on_overflow=False)
@@ -30,19 +30,24 @@ def receive():
         freqs = np.fft.rfftfreq(len(audio), d=1/sample_rate)
         dominant_freq = freqs[np.argmax(spectrum)]
         freq = round(dominant_freq, 1)
-        symbol = reverse_rules.get(round(freq), None)
+        symbol = None
+        tolerance = 40
+        for target_freq, symb in reverse_rules.items():
+            if abs(freq - target_freq) <= tolerance:
+                symbol = symb
+                break
 
-        if state == "WAIT_START":
+        if state == "STAR":
             print(f"[START] {symbol} with {freq}")
             if symbol == 'START':
                 start_count += 1
                 if start_count >= 2:
                     print("[DATA] Receiving...")
-                    state = "RECEIVING"
+                    state = "DAT"
                 else:
                     start_count = 0
 
-        elif state == "RECEIVING":
+        elif state == "DAT":
             if symbol is None:
                 print(f"[DATA] None with {freq}")
                 continue
