@@ -26,9 +26,9 @@ def main():
         print('[q] Exit')
         select = input('Select menu: ').strip().upper()
         if select == '1':
-            send_data()
+            send()
         elif select == '2':
-            receive_data()
+            receive()
         elif select == 'Q':
             print('Terminating...')
             break
