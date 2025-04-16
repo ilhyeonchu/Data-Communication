@@ -35,21 +35,22 @@ def receive():
         for target_freq, symb in reverse_rules.items():
             if abs(freq - target_freq) <= tolerance:
                 symbol = symb
+                matched_freq = target_freq
                 break
 
         if state == "STAR":
-            print(f"[START] {symbol} with {freq}")
+            print(f"[START] {symbol} with {matched_freq}")
             if symbol == 'START':
                 start_count += 1
                 if start_count >= 2:
                     print("[DATA] Receiving...")
                     state = "DAT"
-                else:
-                    start_count = 0
+            else:
+                start_count = 0
 
         elif state == "DAT":
             if symbol is None:
-                print(f"[DATA] None with {freq}")
+                print(f"[DATA] None with {matched_freq}")
                 continue
             elif symbol == 'END':
                 end_count += 1
@@ -59,7 +60,7 @@ def receive():
             else:
                 end_count = 0
                 hex_list.append(symbol)
-                print(f"[DATA] {symbol} with {freq}")
+                print(f"[DATA] {symbol} with {matched_freq}")
                 print("Current data:", ''.join(hex_list))
 
     stream.stop_stream()
