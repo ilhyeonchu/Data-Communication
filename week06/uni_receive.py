@@ -22,6 +22,9 @@ def receive():
     end_count = 0
     hex_list = []
     state = "STAR"
+    current_symbol = None
+    symbol_duration = 0
+    unit_threshold = 2
 
     while True:
         data = stream.read(chunk_size, exception_on_overflow=False)
@@ -39,30 +42,30 @@ def receive():
                 matched_freq = target_freq
                 break
 
-        if state == "STAR":
-            print(f"[START] {symbol} with {matched_freq if matched_freq is not None else freq}")
-            if symbol == 'START':
-                start_count += 1
-                if start_count >= 2:
-                    print("[DATA] Receiving...")
-                    state = "DAT"
-            else:
-                start_count = 0
+        if symbol == current_symbol:
+           symbol_duration += 1
 
-        elif state == "DAT":
-            if symbol is None:
-                print(f"[DATA] None with {matched_freq if matched_freq is not None else freq}")
-                continue
-            elif symbol == 'END':
-                end_count += 1
-                if end_count >= 2:
-                    print("[END] Detected. Ending.")
-                    break
-            else:
-                end_count = 0
-                hex_list.append(symbol)
-                print(f"[DATA] {symbol} with {matched_freq if matched_freq is not None else freq}")
+        else:
+            if current_symbol == 'START' and state == 'STAR' and symbol_duration >= unit_threshold:
+                print("[DATA] Receiving...")
+                state = 'DAT'
+
+            elif current_symbol == 'END' and state == 'DAT' and symbol_duration >= unit_threshold:
+                print("[END] Detected. Ending.")
+                break
+
+            elif current_symbol in rules and state == 'DAT' and symbol_duration >= unit_threshold:
+                hex_list.append(current_symbol)
+                print(f"[DATA] {current_symbol} with {matched_freq if matched_freq is not None else freq}")
                 print("Current data:", ''.join(hex_list))
+
+            current_symbol = symbol
+            symbol_duration = 1 
+
+        if state == 'STAR':
+            print(f"[START] {symbol} with {matched_freq if matched_freq is not None else freq}")
+        elif state == 'DAT' and symbol is not None:
+            print(f"[DATA] {symbol} with {matched_freq if matched_freq is not None else freq}")
 
     stream.stop_stream()
     stream.close()
