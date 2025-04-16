@@ -2,6 +2,7 @@ import wave
 import struct
 import pyaudio
 import scipy.fftpack
+import time
 import numpy as np
 from frerule import rules, sample_rate, chunk_size, unit 
 
@@ -25,6 +26,10 @@ def receive():
     unit_samples = int(sample_rate * unit)
     buffered_audio = []
     tuning = True
+    last_symbol = None
+    last_time = 0
+    now = 0
+    min_symbol_interval = 0.25  # 초 단위, 같은 symbol이 이내로 반복되면 무시
 
     while True:
         data = stream.read(chunk_size, exception_on_overflow=False)
@@ -66,10 +71,16 @@ def receive():
             if end_duration >= 2:
                 print("[END] Receiving complete.")
                 break
-            if symbol in rules and symbol != 'START' and symbol != 'END':
+            now = time.time()
+
+            if symbol == last_symbol and (now - last_time) < min_symbol_interval:
+                    continue  # 너무 빠르게 반복된 symbol은 무시
+
+            if symbol in rules and symbol not in ['START', 'END']:
                 hex_list.append(symbol)
                 print("Current data:", ''.join(hex_list))
-
+                last_symbol = symbol
+                last_time = now
 
         if state == 'STAR':
             print(f"[START] {symbol} with {matched_freq if matched_freq is not None else freq}")
