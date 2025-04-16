@@ -3,10 +3,12 @@ import struct
 import pyaudio
 import scipy.fftpack
 import numpy as np
-from frerule import rules, sample_rate, chunk_size
+from frerule import rules, sample_rate, chunk_size unit 
+
 
 padding = 5
-
+unit_samples = int(sample_rate * unit)
+buffered_audio = []
 reverse_rules = {v: k for k, v in rules.items()}
 
 def receive():
@@ -29,6 +31,13 @@ def receive():
     while True:
         data = stream.read(chunk_size, exception_on_overflow=False)
         audio = np.frombuffer(data, dtype=np.int16)
+        buffered_audio.extend(audio)
+
+        if len(buffered_audio) < unit_samples:
+            continue
+
+        combined = np.array(buffered_audio[:unit_samples])
+        buffered_audio = buffered_audio[unit_samples:]
         spectrum = np.abs(np.fft.rfft(audio))
         freqs = np.fft.rfftfreq(len(audio), d=1/sample_rate)
         dominant_freq = freqs[np.argmax(spectrum)]
