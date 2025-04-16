@@ -10,6 +10,7 @@ unit = 0.1
 sample_rate = 48000
 FREQ_START = 512
 FREQ_STEP = 128
+chunk_size = 1024
 HEX_LIST = ['0', '1', '2', '3',
             '4', '5', '6', '7',
             '8', '9', 'A', 'B',
