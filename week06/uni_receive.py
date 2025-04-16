@@ -40,7 +40,7 @@ def receive():
                 break
 
         if state == "STAR":
-            print(f"[START] {symbol} with {matched_freq}")
+            print(f"[START] {symbol} with {matched_freq if matched_freq is not None else freq}")
             if symbol == 'START':
                 start_count += 1
                 if start_count >= 2:
@@ -51,7 +51,7 @@ def receive():
 
         elif state == "DAT":
             if symbol is None:
-                print(f"[DATA] None with {matched_freq}")
+                print(f"[DATA] None with {matched_freq if matched_freq is not None else freq}")
                 continue
             elif symbol == 'END':
                 end_count += 1
@@ -61,7 +61,7 @@ def receive():
             else:
                 end_count = 0
                 hex_list.append(symbol)
-                print(f"[DATA] {symbol} with {matched_freq}")
+                print(f"[DATA] {symbol} with {matched_freq if matched_freq is not None else freq}")
                 print("Current data:", ''.join(hex_list))
 
     stream.stop_stream()
