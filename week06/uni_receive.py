@@ -3,12 +3,10 @@ import struct
 import pyaudio
 import scipy.fftpack
 import numpy as np
-from frerule import rules, sample_rate, chunk_size unit 
+from frerule import rules, sample_rate, chunk_size, unit 
 
 
 padding = 5
-unit_samples = int(sample_rate * unit)
-buffered_audio = []
 reverse_rules = {v: k for k, v in rules.items()}
 
 def receive():
@@ -27,6 +25,8 @@ def receive():
     current_symbol = None
     symbol_duration = 0
     unit_threshold = 2
+    unit_samples = int(sample_rate * unit)
+    buffered_audio = []
 
     while True:
         data = stream.read(chunk_size, exception_on_overflow=False)
