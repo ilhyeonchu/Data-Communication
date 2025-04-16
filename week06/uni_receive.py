@@ -31,6 +31,7 @@ def receive():
         dominant_freq = freqs[np.argmax(spectrum)]
         freq = round(dominant_freq, 1)
         symbol = None
+        matched_freq = None
         tolerance = 40
         for target_freq, symb in reverse_rules.items():
             if abs(freq - target_freq) <= tolerance:
