@@ -31,6 +31,7 @@ def receive():
     min_symbol_interval = 0.25
     freq = ''
     symbol = ''
+    top = 0
     try:
         while True:
             # 오디오 데이터 읽기
