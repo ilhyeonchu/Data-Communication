@@ -1,10 +1,20 @@
-from prac03 import rules
+from frerule import rules, sample_rate, unit
 
 import math
 import struct
 import wave
 
 import pyaudio
+
+def audio2file(audio, filename):
+        with wave.open(filename, 'wb') as w:
+            w.setnchannels(1)
+            w.setsampwidth(4)
+            w.setframerate(sample_rate)
+            for a in audio:
+                w.writeframes(struct.pack('<l', a))
+                                                                
+        print("saved to", filename)
 
 def send():
     INTMAX = 2**(32-1)-1
@@ -31,8 +41,10 @@ def send():
                     channels=channels,
                     rate=sample_rate,
                     output=True)
+
     chunk_size = 1024
     for i in range(0, len(audio), chunk_size):
         chunk = audio[i:i+chunk_size]
         stream.write(struct.pack('<' + ('l'*len(chunk)), *chunk))
-
+    
+    audio2file(audio, 'send.wav')
