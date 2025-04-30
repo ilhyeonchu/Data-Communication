@@ -10,7 +10,7 @@ unit = 0.1
 sample_rate = 48000
 FREQ_START = 512
 FREQ_STEP = 128
-chunk_size = 4096
+chunk_size = 1024
 HEX_LIST = ['0', '1', '2', '3',
             '4', '5', '6', '7',
             '8', '9', 'A', 'B',
@@ -18,14 +18,16 @@ HEX_LIST = ['0', '1', '2', '3',
 HEX = set(HEX_LIST)
 
 rules = {}
-print('Frequency Rules:')
 rules['START'] = FREQ_START
 for i in range(len(HEX_LIST)):
     h = HEX_LIST[i]
     rules[h] = FREQ_START + FREQ_STEP + FREQ_STEP*(i+1)
 rules['END'] = rules['START'] + FREQ_STEP + FREQ_STEP*(len(HEX_LIST)) + FREQ_STEP * 2
 
-for k, v in rules.items():
-    print(f'{k} => {v}')
+
+if __name__ == '__main__':
+    print('Frequency Rules:')
+    for k, v in rules.items():
+        print(f'{k} => {v}')
 
 
