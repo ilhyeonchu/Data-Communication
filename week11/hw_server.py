@@ -1,4 +1,4 @@
-from random import random
+import random
 import socket
 
 FLAGS = _ = None
@@ -10,34 +10,48 @@ def main():
         print(f'Parsed arguments {FLAGS}')
         print(f'Unparsed arguments {_}')
 
-    # bag 로 1~45 포함한 배열 생성
-    bag = []
-    for i in range(1,46):
-        bag.append(i)
-
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((FLAGS.address, FLAGS.port))
     print(f'Listeningon {sock}')
-    print(f'Numbers in bag: {bag}') # bag 출력들
+
     max_num = 6 # 최대 숫자 
 
     while True:
+        # bag 로 1~45 포함한 배열 생성
+        bag = []
+        for i in range(1, 46):
+            bag.append(i)
+
         data, client = sock.recvfrom(2 ** 16)
         data = data.decode('utf-8')
-        select_num = data.split(' ') # 선택한 숫자
-        max_num = max_num - len(select_num) # 랜덤으로 뽑아야할 숫자의 개수
+        input_num = data.strip().split() # 선택한 숫자
+        selected_numbers = []
+        print(f'Numbers in bag: {bag}')  # bag 출력들
         
-        for i in select_num:
+        # 받은 숫자들을 bag에서 제거
+        for i in input_num:
+            try:
+                num = int(i)
+                bag.remove(num)
+                selected_numbers.append(num)
+            except ValueError:
+                continue
+
+        for i in selected_numbers:
             print(f'Selected: {i}')
         # 반복하면서 숫자 고르기
         # remove select_num in bag 하고 bag에서 하나씩 뽑기
-        # 그냥 random으로 뽑고 select_num에 있는지 확인
-        for i in range(max_num):
-            select_num.append(random
+        # 그냥 random으로 뽑고 select_num에 있는지 확인 중에 하나를
+        while len(selected_numbers) < 6 :
+            rand_index = random.randrange(len(bag))
+            rand_num = bag.pop(rand_index)
+            selected_numbers.append(rand_num)
         
         # select_num을 정렬해서 data 바꾼 후 다시 client한테 전송
-        sock.sendto(data.encode('utf-8'), client)
-        print(f'Send {data} to {client}')
+        selected_numbers.sort()
+        result = ' '.join(str(n) for n in selected_numbers)
+        sock.sendto(result.encode('utf-8'), client)
+        print(f'Send {result} to {client}')
 
 
 if __name__ == '__main__':
