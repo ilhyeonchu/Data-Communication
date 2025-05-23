@@ -14,20 +14,26 @@ def main():
     sock.bind((FLAGS.address, FLAGS.port))
     print(f'Listeningon {sock}')
 
-    max_num = 6 # 최대 숫자 
+    '''
+    # bag 로 1~45 포함한 배열 생성
+    # bag = []
+    # for i in range(1, 46):
+        bag.append(i)
+    '''
+    max_num = 6 # 최대 숫자
 
     while True:
-        # bag 로 1~45 포함한 배열 생성
         bag = []
         for i in range(1, 46):
             bag.append(i)
 
         data, client = sock.recvfrom(2 ** 16)
         data = data.decode('utf-8')
+        print(f'Received {data} from {client}')
         input_num = data.strip().split() # 선택한 숫자
         selected_numbers = []
         print(f'Numbers in bag: {bag}')  # bag 출력들
-        
+
         # 받은 숫자들을 bag에서 제거
         for i in input_num:
             try:
@@ -39,10 +45,11 @@ def main():
 
         for i in selected_numbers:
             print(f'Selected: {i}')
+
         # 반복하면서 숫자 고르기
         # remove select_num in bag 하고 bag에서 하나씩 뽑기
         # 그냥 random으로 뽑고 select_num에 있는지 확인 중에 하나를
-        while len(selected_numbers) < 6 :
+        while len(selected_numbers) < max_num :
             rand_index = random.randrange(len(bag))
             rand_num = bag.pop(rand_index)
             selected_numbers.append(rand_num)

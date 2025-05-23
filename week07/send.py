@@ -18,7 +18,10 @@ def send():
     original_byte = text.encode('utf-8')
     original_hex = original_byte.hex().upper()
     rsc = reedsolo.RSCodec(RSC_LEN)
-    encoded_bytes = rsc.encode(original_byte)
+    encoded_bytes = bytearray()
+    for k in range(0, len(original_byte), DATA_LEN):
+        chunk = original_byte[k:k + DATA_LEN]
+        encoded_bytes += rsc.encode(chunk)
     encoded_hex = encoded_bytes.hex().upper()
     print(f"원본 인코딩 데이터 (헥스): {original_hex}")
     print(f"원본 RS 인코딩 데이터 (헥스): {encoded_hex}")
@@ -106,7 +109,7 @@ def send():
         blocks = [message_samples[i:i+int(UNIT*SAMPLERATE*1)] for i in range(0, len(message_samples), int(UNIT*SAMPLERATE*1))
                   if len(message_samples[i:i+int(UNIT*SAMPLERATE*1)]) == int(UNIT*SAMPLERATE*1)]
 
-        recover_hex = ""
+        receive_hex = ""
         tolerance = 20  # 주파수 매칭 허용 오차
 
         for block in blocks:
@@ -122,13 +125,24 @@ def send():
                     break
             if matched is None:
                 matched = '?'  # 매칭 실패 시
-            recover_hex += matched
-        print(f"복원된 RS 데이터 (헥스): {recover_hex}")
-        recover_bytes = bytes.fromhex(recover_hex)
-        decoded_bytes = rsc.decode(recover_bytes)[0]
+            receive_hex += matched
+        print(f"수신한 RS 데이터 (헥스): {receive_hex}")
+        receive_bytes = bytes.fromhex(receive_hex)
+        decoded_bytes = bytearray()
+        block_length = DATA_LEN + RSC_LEN
+        for i in range(0, len(receive_bytes), block_length):
+            block = receive_bytes[i:i + block_length]
+            try:
+                decoded_block = rsc.decode(block)[0]
+                decoded_bytes += decoded_block
+            except reedsolo.ReedSolomonError as e:
+                print(f"\n블록 {i // block_length} 디코딩 실패: {e}")
+                decoded_bytes += b'?' * DATA_LEN  # 실패한 블록을 ?로 채움
         recover_text = decoded_bytes.decode('utf-8')
 
+        error_num = sum(1 for rb, db in zip(receive_bytes, decoded_bytes) if rb != db)
         print("\nRS 디코딩 성공!")
+        print(f'오류 개수: {error_num}')
         print("복원된 메시지:")
         print(recover_text)
     except reedsolo.ReedSolomonError as e:
