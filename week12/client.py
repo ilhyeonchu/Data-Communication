@@ -4,7 +4,7 @@ import sys
 import os
 
 # SERVER_ADDR = ('34.171.223.63', 3034) 
-SERVER_ADDR = ('100.87.116.106', 22)
+SERVER_ADDR = ('100.87.116.106', 2222)
 BUF_SIZE     = 4096
 TIMEOUT_SEC  = 3.0
 
@@ -17,6 +17,7 @@ def request_info(sock, filename):
         if text.startswith('404'):
             print(">> 서버에 해당 파일이 없습니다.")
             return None
+        print(f">> 데이터: {repr(text)}")
         return int(text)
     except socket.timeout:
         print(">> INFO 응답 타임아웃")

@@ -1,4 +1,3 @@
-from copyreg import clear_extension_cache
 import os
 import socket
 import struct
@@ -58,8 +57,8 @@ def main():
             target = ' '.join(data[1:])
             print(f'{command} {target} from {client}')
 
-            target = target+'.jpg'
-            if tatget not in files.keys():
+            target = target
+            if target not in files.keys():
                 print(f'{target} was not found (requested bt {client})')
                 response = '404 Not Found'
                 sock.sendto(response.encode('utf-8'), client)
@@ -108,8 +107,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--debug', action = 'store_true', help = 'The present debug message')
-    parser.add_argument('--address', type = str, default = '0.0.0.0', help='The address to serve service')
-    parser.add_argument('--port', type=int, default=38443, help='The port to serve service')
+    parser.add_argument('--address', type = str, default = '100.101.205.16', help='The address to serve service')
+    parser.add_argument('--port', type=int, default=2222, help='The port to serve service')
     parser.add_argument('--mtu', type=int, default=1379, help='The port to serve service')
     parser.add_argument('--timeout', type=int, default=3, help='The timeout seconds')
     parser.add_argument('--files', type=str, default='./files', help='The file directory path')
