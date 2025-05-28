@@ -6,7 +6,7 @@ import os
 # SERVER_ADDR = ('34.171.223.63', 3034)
 SERVER_ADDR = ('100.87.116.106', 2222)
 BUF_SIZE     = 4096
-TIMEOUT_SEC  = 3.0
+TIMEOUT_SEC  = 10.0
 DEBUG        = True  # 디버그 모드 변수 추가
 
 def request_info(sock, filename):
