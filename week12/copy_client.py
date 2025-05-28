@@ -1,6 +1,5 @@
 import socket
 import struct
-from http.client import responses
 
 FLAGS = _ = None
 DEBUG = False
@@ -78,3 +77,5 @@ if __name__ == '__main__':
 
     FLAGS, _ = parser.parse_known_args()
     DEBUG = FLAGS.debug
+
+    main()
