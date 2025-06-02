@@ -17,7 +17,7 @@ def main():
     while True:
         try:
             sock.settimeout(FLAGS.timeout)
-            filename = input('File name: ').strip()
+            filename = input('File name:').strip()
             request = f'INFO {filename}'
             sock.sendto(request.encode('utf-8'), (FLAGS.address, FLAGS.port))
 
