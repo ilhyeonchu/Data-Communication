@@ -17,6 +17,6 @@
 /inspectionProfiles/profiles_settings.xml
 /vcs.xml
 .venv/
-send.wav
-__pycache__/
-*.py[cod]
+*.wav
+__pycache__/ 
+
